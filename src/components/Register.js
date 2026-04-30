@@ -17,7 +17,7 @@ function Register() {
     address: '',
     dob: '',
     mobileNo: '',
-    role: 2
+    role: 1
   });
 
   const [errors, setErrors] = useState({});
