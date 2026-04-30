@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './login';
 import AdminDashboard from './components/AdminDashboard';
 import EmployeeDashboard from './components/EmployeeDashboard';
+import Register from './components/Register';
+
 
 // Protected Route
 function ProtectedRoute({ children }) {
@@ -35,6 +37,7 @@ function App() {
           }
         />
 
+<Route path="/register" element={<Register />} />
       </Routes>
     </BrowserRouter>
   );
