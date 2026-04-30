@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import '../styles/AttendanceAdmin.css';
+import api from '../services/api';
 
 function AttendanceAdmin() {
   const currentMonth = new Date().toISOString().slice(0, 7);
@@ -22,22 +23,18 @@ function AttendanceAdmin() {
 
   // ---------------- FETCH ----------------
   const fetchAttendance = async () => {
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      const res = await axios.get('http://localhost:8080/attendance/all', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const res = await api.get('/attendance/all');
 
-      setAttendance(res.data);
-    } catch (err) {
-      console.error('Attendance fetch error:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    setAttendance(res.data);
+  } catch (err) {
+    console.error('Attendance fetch error:', err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // ---------------- WORK HOURS FIX (MAIN FIX) ----------------
   const calculateMinutes = (checkIn, checkOut) => {
