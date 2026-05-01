@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import api from '../services/api';
 import '../styles/Employee.css';
 
@@ -33,6 +33,7 @@ function Employee() {
 
   const [loading, setLoading] = useState(false);
   const [deleteId, setDeleteId] = useState(null);
+const initialFetchDone = useRef(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -42,10 +43,18 @@ function Employee() {
     return () => clearTimeout(timer);
   }, [search]);
 
+ 
   useEffect(() => {
+  // first load protection
+  if (!initialFetchDone.current) {
+    initialFetchDone.current = true;
     fetchEmployees();
-  }, [page, debouncedSearch]);
+    return;
+  }
 
+  // allow normal pagination + search updates
+  fetchEmployees();
+}, [page, debouncedSearch]);
   // ---------------- FETCH ----------------
   const fetchEmployees = async () => {
     try {

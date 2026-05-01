@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Dashboard.css';
 import { useNavigate } from 'react-router-dom';
 import Employee from './Employee';
@@ -12,6 +12,7 @@ function AdminDashboard() {
   const [activePage, setActivePage] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
+  const statsFetched = useRef(false);
 
   const [stats, setStats] = useState({
     totalEmployees: 0,
@@ -30,12 +31,13 @@ function AdminDashboard() {
     navigate('/', { replace: true });
   };
 
-  useEffect(() => {
-    if (activePage === 'dashboard') {
-      fetchDashboardStats();
-    }
-  }, [activePage]);
 
+  useEffect(() => {
+  if (activePage === 'dashboard' && !statsFetched.current) {
+    statsFetched.current = true;
+    fetchDashboardStats();
+  }
+}, [activePage]);
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
@@ -126,7 +128,7 @@ function AdminDashboard() {
                   onClick={() => {
                     setProfileOpen(false);
                     logout();
-}}
+                  }}
                   className="logout-btn"
                 >
                   Logout
@@ -174,7 +176,9 @@ function AdminDashboard() {
 
         {activePage === 'employee' && <Employee />}
 
-        {activePage === 'attendance' && <AttendanceAdmin />}
+        <div style={{ display: activePage === 'attendance' ? 'block' : 'none' }}>
+          <AttendanceAdmin />
+        </div>
 
         {activePage === 'profile' && (
           <Profile

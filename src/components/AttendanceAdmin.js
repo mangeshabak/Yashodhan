@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import '../styles/AttendanceAdmin.css';
 import api from '../services/api';
@@ -16,25 +16,29 @@ function AttendanceAdmin() {
   const [mapData, setMapData] = useState(null);
 
   const token = localStorage.getItem('token');
+  const hasFetched = useRef(false);
+
 
   useEffect(() => {
+    if (hasFetched.current) return;
+
+    hasFetched.current = true;
     fetchAttendance();
   }, []);
-
   // ---------------- FETCH ----------------
   const fetchAttendance = async () => {
-  try {
-    setLoading(true);
+    try {
+      setLoading(true);
 
-    const res = await api.get('/attendance/all');
+      const res = await api.get('/attendance/all');
 
-    setAttendance(res.data);
-  } catch (err) {
-    console.error('Attendance fetch error:', err);
-  } finally {
-    setLoading(false);
-  }
-};
+      setAttendance(res.data);
+    } catch (err) {
+      console.error('Attendance fetch error:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // ---------------- WORK HOURS FIX (MAIN FIX) ----------------
   const calculateMinutes = (checkIn, checkOut) => {
