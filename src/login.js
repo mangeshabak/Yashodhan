@@ -94,13 +94,13 @@ function Login() {
           {loading ? <div className="loader"></div> : 'Login'}
         </button>
 
-        <button
+        {/* <button
           onClick={() => navigate('/register')}
           className="login-button"
           style={{ marginTop: '10px', backgroundColor: '#555' }}
         >
           Register
-        </button>
+        </button> */}
 
         {/* <p className="copyright">
           © 2026 Yashodhan Energy Solution. All Rights Reserved.
