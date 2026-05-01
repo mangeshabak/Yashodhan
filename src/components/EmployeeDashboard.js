@@ -13,6 +13,10 @@ function EmployeeDashboard() {
   const [profileOpen, setProfileOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [todayAttendance, setTodayAttendance] = useState(null);
+  const [showCamera, setShowCamera] = useState(false);
+const [stream, setStream] = useState(null);
+const videoRef = React.useRef(null);
+const canvasRef = React.useRef(null);
 
   const employeeId = localStorage.getItem('employeeId');
   const username = localStorage.getItem('employeename');
@@ -42,6 +46,63 @@ function EmployeeDashboard() {
   });
 };
 
+//---------------Capture Selfie--------------------------
+
+const openCamera = async () => {
+  try {
+    const mediaStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: 'user'
+      }
+    });
+
+    setStream(mediaStream);
+    setShowCamera(true);
+
+    setTimeout(() => {
+      if (videoRef.current) {
+        videoRef.current.srcObject = mediaStream;
+      }
+    }, 200);
+
+  } catch (err) {
+    alert('Camera access denied');
+  }
+};
+
+const captureSelfie = () => {
+  return new Promise((resolve) => {
+
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+
+    const context = canvas.getContext('2d');
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    context.drawImage(video, 0, 0);
+
+    canvas.toBlob((blob) => {
+
+      const file = new File(
+        [blob],
+        'selfie.jpg',
+        { type: 'image/jpeg' }
+      );
+
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+
+      setShowCamera(false);
+
+      resolve(file);
+
+    }, 'image/jpeg');
+  });
+};
+
   // ---------------- FETCH TODAY ATTENDANCE ----------------
   const fetchTodayAttendance = async () => {
     try {
@@ -57,78 +118,287 @@ function EmployeeDashboard() {
   }, []);
 
   // ---------------- CHECK IN ----------------
-  const checkIn = async () => {
-    if (todayAttendance) {
-      alert('Already checked in today');
-      return;
-    }
+//   const checkIn = async () => {
+//     if (todayAttendance) {
+//       alert('Already checked in today');
+//       return;
+//     }
 
-    try {
-      setLoading(true);
+//     try {
+//       setLoading(true);
 
-      const location = await getCurrentLocation();
+//       const location = await getCurrentLocation();
+
+//       const res = await api.post(
+//         `/attendance/checkin/${employeeId}`,
+//         {
+//           latitude: location.latitude,
+//           longitude: location.longitude,
+//         }
+//       );
+
+//       setTodayAttendance(res.data);
+//       localStorage.setItem('attendanceId', res.data.id);
+
+//       alert('Checked In Successfully');
+//     } catch (error) {
+//   console.log('CHECKIN ERROR:', error);
+
+//   alert(
+//     error?.message ||
+//     JSON.stringify(error) ||
+//     'Check In Failed or Location denied'
+//   );
+// }finally {
+//       setLoading(false);
+//     }
+//   };
+const checkIn = async () => {
+  if (todayAttendance) {
+    alert('Already checked in today');
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    const location = await getCurrentLocation();
+
+    // Open Camera
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: 'user'
+      }
+    });
+
+    // Create popup container
+    const modal = document.createElement('div');
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.background = 'rgba(0,0,0,0.8)';
+    modal.style.display = 'flex';
+    modal.style.justifyContent = 'center';
+    modal.style.alignItems = 'center';
+    modal.style.zIndex = '9999';
+
+    const container = document.createElement('div');
+    container.style.background = '#fff';
+    container.style.padding = '20px';
+    container.style.borderRadius = '12px';
+
+    const video = document.createElement('video');
+    video.autoplay = true;
+    video.srcObject = stream;
+    video.style.width = '350px';
+
+    const button = document.createElement('button');
+    button.innerText = 'Capture Selfie';
+    button.style.marginTop = '10px';
+
+    container.appendChild(video);
+    container.appendChild(button);
+    modal.appendChild(container);
+    document.body.appendChild(modal);
+
+    button.onclick = async () => {
+      const canvas = document.createElement('canvas');
+
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+
+      const blob = await new Promise((resolve) =>
+        canvas.toBlob(resolve, 'image/jpeg')
+      );
+
+      const selfie = new File([blob], 'selfie.jpg', {
+        type: 'image/jpeg'
+      });
+
+      stream.getTracks().forEach(track => track.stop());
+      document.body.removeChild(modal);
+
+      const formData = new FormData();
+
+      formData.append('latitude', location.latitude);
+      formData.append('longitude', location.longitude);
+      formData.append('selfie', selfie);
 
       const res = await api.post(
         `/attendance/checkin/${employeeId}`,
-        {
-          latitude: location.latitude,
-          longitude: location.longitude,
-        }
+        formData
       );
 
       setTodayAttendance(res.data);
-      localStorage.setItem('attendanceId', res.data.id);
 
       alert('Checked In Successfully');
-    } catch (error) {
-  console.log('CHECKIN ERROR:', error);
+    };
 
-  alert(
-    error?.message ||
-    JSON.stringify(error) ||
-    'Check In Failed or Location denied'
-  );
-}finally {
-      setLoading(false);
-    }
-  };
+  } catch (error) {
+    console.log(error);
+    alert('Camera or Check-In Failed');
+  } finally {
+    setLoading(false);
+  }
+};
 
-  // ---------------- CHECK OUT ----------------
-  const checkOut = async () => {
-    if (!todayAttendance) {
-      alert("You haven't checked in today");
-      return;
-    }
+// ---------------- CHECK OUT ----------------
+  // const checkOut = async () => {
+  //   if (!todayAttendance) {
+  //     alert("You haven't checked in today");
+  //     return;
+  //   }
 
-    if (todayAttendance.checkOutTime) {
-      alert('Already checked out today');
-      return;
-    }
+  //   if (todayAttendance.checkOutTime) {
+  //     alert('Already checked out today');
+  //     return;
+  //   }
 
-    try {
-      setLoading(true);
+  //   try {
+  //     setLoading(true);
 
-      const location = await getCurrentLocation();
+  //     const location = await getCurrentLocation();
 
-      const res = await api.put(
-        `/attendance/checkout/${todayAttendance.id}`,
-        {
-          latitude: location.latitude,
-          longitude: location.longitude,
-        }
-      );
+  //     const res = await api.put(
+  //       `/attendance/checkout/${todayAttendance.id}`,
+  //       {
+  //         latitude: location.latitude,
+  //         longitude: location.longitude,
+  //       }
+  //     );
 
-      setTodayAttendance(res.data);
+  //     setTodayAttendance(res.data);
 
-      alert('Checked Out Successfully');
-    } catch (error) {
-      console.log(error);
-      alert('Check Out Failed or Location denied');
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     alert('Checked Out Successfully');
+  //   } catch (error) {
+  //     console.log(error);
+  //     alert('Check Out Failed or Location denied');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
+const checkOut = async () => {
+  if (!todayAttendance) {
+    alert("You haven't checked in today");
+    return;
+  }
+
+  if (todayAttendance.checkOutTime) {
+    alert('Already checked out today');
+    return;
+  }
+
+  try {
+    setLoading(true);
+
+    // 1. Get Current Location
+    const location = await getCurrentLocation();
+
+    // 2. Open Front Camera
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: 'user'
+      }
+    });
+
+    // 3. Create Camera Popup
+    const modal = document.createElement('div');
+    modal.style.position = 'fixed';
+    modal.style.top = '0';
+    modal.style.left = '0';
+    modal.style.width = '100%';
+    modal.style.height = '100%';
+    modal.style.background = 'rgba(0,0,0,0.8)';
+    modal.style.display = 'flex';
+    modal.style.justifyContent = 'center';
+    modal.style.alignItems = 'center';
+    modal.style.zIndex = '9999';
+
+    const container = document.createElement('div');
+    container.style.background = '#fff';
+    container.style.padding = '20px';
+    container.style.borderRadius = '12px';
+    container.style.textAlign = 'center';
+
+    const video = document.createElement('video');
+    video.autoplay = true;
+    video.srcObject = stream;
+    video.style.width = '350px';
+    video.style.borderRadius = '10px';
+
+    const captureBtn = document.createElement('button');
+    captureBtn.innerText = 'Capture Selfie';
+    captureBtn.style.marginTop = '15px';
+    captureBtn.style.padding = '10px 20px';
+    captureBtn.style.cursor = 'pointer';
+
+    container.appendChild(video);
+    container.appendChild(captureBtn);
+    modal.appendChild(container);
+    document.body.appendChild(modal);
+
+    // 4. Capture Image
+    captureBtn.onclick = async () => {
+      try {
+        const canvas = document.createElement('canvas');
+
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+
+        const blob = await new Promise((resolve) =>
+          canvas.toBlob(resolve, 'image/jpeg')
+        );
+
+        const selfie = new File([blob], 'checkout-selfie.jpg', {
+          type: 'image/jpeg'
+        });
+
+        // Stop Camera
+        stream.getTracks().forEach(track => track.stop());
+
+        // Remove Popup
+        document.body.removeChild(modal);
+
+        // 5. FormData
+        const formData = new FormData();
+
+        formData.append('latitude', location.latitude);
+        formData.append('longitude', location.longitude);
+        formData.append('selfie', selfie);
+
+        // 6. API Call
+        const res = await api.put(
+          `/attendance/checkout/${todayAttendance.id}`,
+          formData
+        );
+
+        setTodayAttendance(res.data);
+
+        alert('Checked Out Successfully');
+
+      } catch (err) {
+        console.log(err);
+        alert('Capture Failed');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+  } catch (error) {
+    console.log(error);
+    alert('Camera Access Denied or Checkout Failed');
+    setLoading(false);
+  }
+};
   // ---------------- LOGOUT ----------------
   const logout = () => {
     localStorage.clear();

@@ -10,6 +10,8 @@ function AttendanceHistory({ employeeId }) {
   const [attendanceList, setAttendanceList] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [loading, setLoading] = useState(true);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedAttendanceId, setSelectedAttendanceId] = useState(null);
 
   useEffect(() => {
     fetchAttendance();
@@ -79,6 +81,31 @@ function AttendanceHistory({ employeeId }) {
     saveAs(data, 'Attendance.xlsx');
   };
 
+  const openDeleteModal = (id) => {
+    setSelectedAttendanceId(id);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await api.post(`/attendance/delete/${selectedAttendanceId}`);
+
+      setAttendanceList((prev) =>
+        prev.filter((item) => item.id !== selectedAttendanceId)
+      );
+
+      setShowDeleteModal(false);
+      setSelectedAttendanceId(null);
+    } catch (error) {
+      console.log(error);
+      alert('Failed to delete attendance');
+    }
+  };
+
+  const closeModal = () => {
+    setShowDeleteModal(false);
+    setSelectedAttendanceId(null);
+  };
   return (
     <div className="attendance-container">
       {/* HEADER */}
@@ -144,6 +171,7 @@ function AttendanceHistory({ employeeId }) {
                 <th>Check In</th>
                 <th>Check Out</th>
                 <th>Work Hours</th>
+                <th>Action</th>
               </tr>
             </thead>
 
@@ -155,48 +183,80 @@ function AttendanceHistory({ employeeId }) {
                   <td>
                     {item.checkInTime
                       ? new Date(item.checkInTime).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          second: '2-digit'
-                        })
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                      })
                       : '-'}
                   </td>
 
                   <td>
                     {item.checkOutTime
                       ? new Date(item.checkOutTime).toLocaleTimeString([], {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                          second: '2-digit'
-                        })
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit'
+                      })
                       : '-'}
                   </td>
 
                   <td>
                     {item.checkInTime && item.checkOutTime
                       ? (() => {
-                          const checkIn = new Date(item.checkInTime);
-                          const checkOut = new Date(item.checkOutTime);
+                        const checkIn = new Date(item.checkInTime);
+                        const checkOut = new Date(item.checkOutTime);
 
-                          const diffMs = checkOut - checkIn;
+                        const diffMs = checkOut - checkIn;
 
-                          const hours = Math.floor(
-                            diffMs / (1000 * 60 * 60)
-                          );
+                        const hours = Math.floor(
+                          diffMs / (1000 * 60 * 60)
+                        );
 
-                          const minutes = Math.floor(
-                            (diffMs % (1000 * 60 * 60)) / (1000 * 60)
-                          );
+                        const minutes = Math.floor(
+                          (diffMs % (1000 * 60 * 60)) / (1000 * 60)
+                        );
 
-                          return `${hours}h ${minutes}m`;
-                        })()
+                        return `${hours}h ${minutes}m`;
+                      })()
                       : '-'}
+                  </td>
+                  {/* DELETE */}
+                  <td>
+                    <div className="icon-wrapper">
+                      <button
+                        className="icon-btn delete"
+                        onClick={() => openDeleteModal(item.id)}
+                      >
+                        🗑️
+                      </button>
+
+                      <span className="icon-label">Delete</span>
+                    </div>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </>
+      )}
+
+      {showDeleteModal && (
+        <div className="modal-overlay">
+          <div className="delete-modal">
+            <h3>Delete Attendance</h3>
+            <p>Are you sure you want to delete this entry?</p>
+
+            <div className="modal-buttons">
+              <button className="cancel-btn" onClick={closeModal}>
+                Cancel
+              </button>
+
+              <button className="confirm-btn" onClick={confirmDelete}>
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

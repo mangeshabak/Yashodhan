@@ -264,17 +264,50 @@ function AttendanceAdmin() {
 
                 <p><b>Date:</b> {mapData.attendanceDate}</p>
 
-                <h3>Check-In Location</h3>
-                <MapView
-                  lat={mapData.checkInLatitude}
-                  lng={mapData.checkInLongitude}
-                />
+                <h3>Check-In Details</h3>
 
-                <h3>Check-Out Location</h3>
-                <MapView
-                  lat={mapData.checkOutLatitude}
-                  lng={mapData.checkOutLongitude}
-                />
+                <div className="location-selfie-row">
+                  <div className="map-box">
+                    <MapView
+                      lat={mapData.checkInLatitude}
+                      lng={mapData.checkInLongitude}
+                    />
+                  </div>
+
+                  <div className="selfie-box">
+                    {mapData.checkInSelfieBase64 ? (
+                      <img
+                        src={`data:image/jpeg;base64,${mapData.checkInSelfieBase64}`}
+                        alt="CheckIn Selfie"
+                        className="selfie-img"
+                      />
+                    ) : (
+                      <p>No Check-In Selfie</p>
+                    )}
+                  </div>
+                </div>
+                <h3>Check-Out Details</h3>
+
+                <div className="location-selfie-row">
+                  <div className="map-box">
+                    <MapView
+                      lat={mapData.checkOutLatitude}
+                      lng={mapData.checkOutLongitude}
+                    />
+                  </div>
+
+                  <div className="selfie-box">
+                    {mapData.checkOutSelfieBase64 ? (
+                      <img
+                        src={`data:image/jpeg;base64,${mapData.checkOutSelfieBase64}`}
+                        alt="CheckOut Selfie"
+                        className="selfie-img"
+                      />
+                    ) : (
+                      <p>No Check-Out Selfie</p>
+                    )}
+                  </div>
+                </div>
 
                 <button
                   className="close-btn"

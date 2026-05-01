@@ -3,7 +3,7 @@ import Login from './login';
 import AdminDashboard from './components/AdminDashboard';
 import EmployeeDashboard from './components/EmployeeDashboard';
 import Register from './components/Register';
-
+import Footer from './components/Footer'; // Import Footer
 
 // Protected Route
 function ProtectedRoute({ children }) {
@@ -15,30 +15,33 @@ function ProtectedRoute({ children }) {
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
+      <div className="app-container">
+        <Routes>
+          <Route path="/" element={<Login />} />
 
-        <Route path="/" element={<Login />} />
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/admin-dashboard"
-          element={
-            <ProtectedRoute>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/employee-dashboard"
+            element={
+              <ProtectedRoute>
+                <EmployeeDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/employee-dashboard"
-          element={
-            <ProtectedRoute>
-              <EmployeeDashboard />
-            </ProtectedRoute>
-          }
-        />
+          <Route path="/register" element={<Register />} />
+        </Routes>
 
-<Route path="/register" element={<Register />} />
-      </Routes>
+        <Footer />
+      </div>
     </BrowserRouter>
   );
 }
