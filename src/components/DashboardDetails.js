@@ -77,6 +77,9 @@ function DashboardDetails({ type, onBack }) {
                 <th>Middle Name</th>
                 <th>Last Name</th>
                 <th>Status</th>
+                {(type === 'checkin' || type === 'checkout') && (
+                  <th>Time</th>
+                )}
               </tr>
             </thead>
 
@@ -88,22 +91,47 @@ function DashboardDetails({ type, onBack }) {
                     <td>{emp.firstname}</td>
                     <td>{emp.middlename || '-'}</td>
                     <td>{emp.lastname}</td>
+
                     <td>
                       <span
-                        className={`status-badge ${
-                          emp.status === 'Present'
-                            ? 'present'
-                            : 'absent'
-                        }`}
+                        className={`status-badge ${emp.status === 'Present'
+                          ? 'present'
+                          : 'absent'
+                          }`}
                       >
                         {emp.status || 'Absent'}
                       </span>
                     </td>
+
+                    {(type === 'checkin' || type === 'checkout') && (
+                      <td>
+                        {type === 'checkin' && emp.checkInTime
+                          ? new Date(emp.checkInTime).toLocaleTimeString('en-IN', {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit',
+                            hour12: true,
+                            timeZone: 'Asia/Kolkata'
+                          })
+                          : type === 'checkout' && emp.checkOutTime
+                            ? new Date(emp.checkOutTime).toLocaleTimeString('en-IN', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit',
+                              hour12: true,
+                              timeZone: 'Asia/Kolkata'
+                            })
+                            : '-'}
+                      </td>
+                    )}
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="empty-row">
+                  <td
+                    colSpan={type === 'checkin' || type === 'checkout' ? 6 : 5}
+                    className="empty-row"
+                  >
                     No Records Found
                   </td>
                 </tr>

@@ -230,9 +230,29 @@ function AttendanceAdmin() {
                     {selectedEmployee.records.map((a, i) => (
                       <tr key={i}>
                         <td>{a.attendanceDate}</td>
-                        <td>{a.checkInTime ? new Date(a.checkInTime).toLocaleTimeString() : '-'}</td>
-                        <td>{a.checkOutTime ? new Date(a.checkOutTime).toLocaleTimeString() : '-'}</td>
+                        <td>
+                          {a.checkInTime
+                            ? new Date(a.checkInTime).toLocaleTimeString('en-IN', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit',
+                              hour12: true,
+                              timeZone: 'Asia/Kolkata'
+                            })
+                            : '-'}
+                        </td>
 
+                        <td>
+                          {a.checkOutTime
+                            ? new Date(a.checkOutTime).toLocaleTimeString('en-IN', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                              second: '2-digit',
+                              hour12: true,
+                              timeZone: 'Asia/Kolkata'
+                            })
+                            : '-'}
+                        </td>
                         <td>
                           {formatWorkHours(a.checkInTime, a.checkOutTime)}
                         </td>
