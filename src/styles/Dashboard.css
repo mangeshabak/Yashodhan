@@ -179,59 +179,73 @@ body {
   background: #b91c1c;
 }
 
+/* DASHBOARD WRAPPER */
+.dashboard-wrapper {
+  padding: 25px;
+}
+
 /* DASHBOARD CARDS */
+/* DASHBOARD WRAPPER */
+.dashboard-wrapper {
+  padding: 25px;
+}
+
+/* CARDS GRID */
 .cards-container {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 280px));
   gap: 25px;
-  padding: 30px;
+  padding: 20px;
+  justify-content: start;
 }
 
 /* CARD */
 .card {
+  background: white;
+  border-radius: 18px;
+  padding: 22px;
+  cursor: pointer;
+  transition: 0.25s ease;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  height: 150px;
   position: relative;
-  background: linear-gradient(135deg, #ffffff, #f8fafc);
-  border-radius: 22px;
-  padding: 28px;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
-  transition: all 0.3s ease;
-  border: 1px solid #e2e8f0;
-  z-index: 1;
 }
 
 .card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.12);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.10);
 }
 
-/* CARD TOP BORDER */
+.card h3 {
+  margin: 0;
+  font-size: 16px;
+  color: #64748b;
+  margin-bottom: 12px;
+  text-align: center;
+}
+
+.card h1 {
+  margin: 0;
+  font-size: 34px;
+  color: #111827;
+  font-weight: 700;
+}
+
 .card::before {
   content: '';
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 6px;
+  height: 5px;
   background: linear-gradient(90deg, #dc2626, #ef4444);
-}
-
-/* CARD TITLE */
-.card h3 {
-  font-size: 14px;
-  color: #64748b;
-  margin-bottom: 15px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 600;
-}
-
-/* CARD VALUE */
-.card h1 {
-  margin: 0;
-  font-size: 42px;
-  font-weight: 700;
-  color: #0f172a;
 }
 
 /* OPTIONAL ICON */
@@ -251,10 +265,24 @@ body {
 }
 
 /* RESPONSIVE */
+@media (max-width: 1100px) {
+  .cards-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .cards-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* RESPONSIVE */
 @media (max-width: 768px) {
   .sidebar.open {
     width: 200px;
   }
+
 
   .navbar {
     padding: 15px;

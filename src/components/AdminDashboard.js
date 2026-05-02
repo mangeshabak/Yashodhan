@@ -5,6 +5,7 @@ import Employee from './Employee';
 import AttendanceAdmin from './AttendanceAdmin';
 import Profile from './Profile';
 import api from '../services/api';
+import DashboardDetails from './DashboardDetails';
 
 function AdminDashboard() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ function AdminDashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [profileOpen, setProfileOpen] = useState(false);
   const statsFetched = useRef(false);
+  const [dashboardType, setDashboardType] = useState('');
 
   const [stats, setStats] = useState({
     totalEmployees: 0,
@@ -33,11 +35,11 @@ function AdminDashboard() {
 
 
   useEffect(() => {
-  if (activePage === 'dashboard' && !statsFetched.current) {
-    statsFetched.current = true;
-    fetchDashboardStats();
-  }
-}, [activePage]);
+    if (activePage === 'dashboard' && !statsFetched.current) {
+      statsFetched.current = true;
+      fetchDashboardStats();
+    }
+  }, [activePage]);
   const fetchDashboardStats = async () => {
     try {
       setLoading(true);
@@ -139,7 +141,7 @@ function AdminDashboard() {
         </div>
 
         {/* DASHBOARD */}
-        {activePage === 'dashboard' && (
+        {/* {activePage === 'dashboard' && (
           <div className="cards-container">
             {loading ? (
               <h3 style={{ padding: '20px' }}>Loading Dashboard...</h3>
@@ -172,6 +174,68 @@ function AdminDashboard() {
               </>
             )}
           </div>
+        )} */}
+        {activePage === 'dashboard' && (
+          <div className="dashboard-wrapper">
+            <div className="cards-container">
+
+              <div
+                className="card"
+                onClick={() => {
+                  setDashboardType('total');
+                  setActivePage('stats');
+                }}
+              >
+                <h3>Total Employees</h3>
+                <h1>{stats.totalEmployees}</h1>
+              </div>
+
+              <div
+                className="card"
+                onClick={() => {
+                  setDashboardType('present');
+                  setActivePage('stats');
+                }}
+              >
+                <h3>Present Today</h3>
+                <h1>{stats.presentToday}</h1>
+              </div>
+
+              <div
+                className="card"
+                onClick={() => {
+                  setDashboardType('absent');
+                  setActivePage('stats');
+                }}
+              >
+                <h3>Absent Today</h3>
+                <h1>{stats.absentToday}</h1>
+              </div>
+
+              <div
+                className="card"
+                onClick={() => {
+                  setDashboardType('checkin');
+                  setActivePage('stats');
+                }}
+              >
+                <h3>Checked In</h3>
+                <h1>{stats.checkedIn}</h1>
+              </div>
+
+              <div
+                className="card"
+                onClick={() => {
+                  setDashboardType('checkout');
+                  setActivePage('stats');
+                }}
+              >
+                <h3>Checked Out</h3>
+                <h1>{stats.checkedOut}</h1>
+              </div>
+
+            </div>
+          </div>
         )}
 
         {activePage === 'employee' && <Employee />}
@@ -186,6 +250,14 @@ function AdminDashboard() {
             role="admin"
           />
         )}
+
+        {activePage === 'stats' && (
+          <DashboardDetails
+            type={dashboardType}
+            onBack={() => setActivePage('dashboard')}
+          />
+        )}
+
       </div>
     </div>
   );

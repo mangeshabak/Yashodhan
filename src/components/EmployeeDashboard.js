@@ -118,41 +118,6 @@ const captureSelfie = () => {
   }, []);
 
   // ---------------- CHECK IN ----------------
-//   const checkIn = async () => {
-//     if (todayAttendance) {
-//       alert('Already checked in today');
-//       return;
-//     }
-
-//     try {
-//       setLoading(true);
-
-//       const location = await getCurrentLocation();
-
-//       const res = await api.post(
-//         `/attendance/checkin/${employeeId}`,
-//         {
-//           latitude: location.latitude,
-//           longitude: location.longitude,
-//         }
-//       );
-
-//       setTodayAttendance(res.data);
-//       localStorage.setItem('attendanceId', res.data.id);
-
-//       alert('Checked In Successfully');
-//     } catch (error) {
-//   console.log('CHECKIN ERROR:', error);
-
-//   alert(
-//     error?.message ||
-//     JSON.stringify(error) ||
-//     'Check In Failed or Location denied'
-//   );
-// }finally {
-//       setLoading(false);
-//     }
-//   };
 const checkIn = async () => {
   if (todayAttendance) {
     alert('Already checked in today');
@@ -248,40 +213,6 @@ const checkIn = async () => {
 };
 
 // ---------------- CHECK OUT ----------------
-  // const checkOut = async () => {
-  //   if (!todayAttendance) {
-  //     alert("You haven't checked in today");
-  //     return;
-  //   }
-
-  //   if (todayAttendance.checkOutTime) {
-  //     alert('Already checked out today');
-  //     return;
-  //   }
-
-  //   try {
-  //     setLoading(true);
-
-  //     const location = await getCurrentLocation();
-
-  //     const res = await api.put(
-  //       `/attendance/checkout/${todayAttendance.id}`,
-  //       {
-  //         latitude: location.latitude,
-  //         longitude: location.longitude,
-  //       }
-  //     );
-
-  //     setTodayAttendance(res.data);
-
-  //     alert('Checked Out Successfully');
-  //   } catch (error) {
-  //     console.log(error);
-  //     alert('Check Out Failed or Location denied');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
 const checkOut = async () => {
   if (!todayAttendance) {

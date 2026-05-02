@@ -64,7 +64,17 @@ function AttendanceHistory({ employeeId }) {
   const absentCount = daysInMonth - presentCount;
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(attendanceList);
+    const cleanedData = attendanceList.map((item) => ({
+      Date: item.attendanceDate,
+      CheckIn: item.checkInTime,
+      CheckOut: item.checkOutTime,
+      CheckInLatitude: item.checkInLatitude,
+      CheckInLongitude: item.checkInLongitude,
+      CheckOutLatitude: item.checkOutLatitude,
+      CheckOutLongitude: item.checkOutLongitude
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(cleanedData);
     const workbook = XLSX.utils.book_new();
 
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendance');
@@ -182,7 +192,8 @@ function AttendanceHistory({ employeeId }) {
 
                   <td>
                     {item.checkInTime
-                      ? new Date(item.checkInTime).toLocaleTimeString([], {
+                      ? new Date(item.checkInTime).toLocaleTimeString('en-IN', {
+                        timeZone: 'Asia/Kolkata',
                         hour: '2-digit',
                         minute: '2-digit',
                         second: '2-digit'
@@ -192,7 +203,8 @@ function AttendanceHistory({ employeeId }) {
 
                   <td>
                     {item.checkOutTime
-                      ? new Date(item.checkOutTime).toLocaleTimeString([], {
+                      ? new Date(item.checkOutTime).toLocaleTimeString('en-IN', {
+                        timeZone: 'Asia/Kolkata',
                         hour: '2-digit',
                         minute: '2-digit',
                         second: '2-digit'
